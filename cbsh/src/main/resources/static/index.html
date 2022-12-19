@@ -1,0 +1,47 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lista de cuentas bancarias</title>
+    <style>
+      /* Estilos de la página */
+    </style>
+  </head>
+  <body>
+    <h1>Lista de cuentas bancarias</h1>
+
+    <button id="consultar-button">Consultar cuentas</button>
+
+    <ul id="cuentas-list">
+      <!-- Aquí se mostrarán los datos de las cuentas -->
+    </ul>
+
+    <script>
+      // Función que se ejecutará al hacer clic en el botón
+      const consultarCuentas = async () => {
+        // Realizar una solicitud GET a la API de cuentas bancarias
+        const respuesta = await fetch("https://miservicio.com/api/cuentas");
+        const cuentas = await respuesta.json();
+
+        // Mostrar los datos de las cuentas en la lista
+        const cuentasList = document.getElementById("cuentas-list");
+        cuentas.forEach((cuenta) => {
+          const numero = cuenta.numero;
+          const saldo = cuenta.saldo;
+          const fechaApertura = cuenta.fechaApertura;
+          cuentasList.innerHTML += `
+            <li>
+              <p>Numero: ${numero}</p>
+              <p>Saldo: ${saldo}</p>
+              <p>Fecha de apertura: ${fechaApertura}</p>
+            </li>
+          `;
+        });
+      };
+
+      // Asociar la función a un evento del botón
+      const consultarButton = document.getElementById("consultar-button");
+      consultarButton.addEventListener("click", consultarCuentas);
+    </script>
+  </body>
+</html>
