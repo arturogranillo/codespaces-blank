@@ -19,11 +19,11 @@ public class Result<T> {
         return new Result<>(null, mensajeError, false);
     }
 
-    public T obtenerResultado() {
+    public T getResultado() {
         return resultado;
     }
 
-    public String obtenerMensajeError() {
+    public String getMensajeError() {
         return mensajeError;
     }
 

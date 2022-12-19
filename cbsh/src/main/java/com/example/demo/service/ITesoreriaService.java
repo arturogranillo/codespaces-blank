@@ -4,16 +4,16 @@ import java.util.List;
 import java.util.Optional;
 import java.math.BigDecimal;
 
+import com.example.demo.model.util.Result;
+
 import com.example.demo.model.*;
 
 public interface ITesoreriaService {
 
-  List<Movimiento> MovimientosPorCuenta(String numero);
+  Result<Cuenta> Transferencia(Transferencia transferencia);
 
-  boolean Transferencia(Transferencia transferencia);
+  Result<Cuenta> Abono(String numero, double monto);
 
-  boolean Abono(String numero, String descripcion, BigDecimal monto);
-
-  boolean Cargo(String numero, String descripcion, BigDecimal monto);
+  Result<Cuenta> Retiro(String numero, double monto);
 
 }

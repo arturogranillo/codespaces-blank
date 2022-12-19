@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.List;
 
 import com.example.demo.model.Cuenta;
-import com.example.demo.model.Movimiento;
 
 import com.example.demo.repository.*;
 
@@ -18,12 +17,10 @@ import java.math.BigDecimal;
 public class Seeder implements CommandLineRunner {
 
   private ICuentaRepository cuentaRepository;
-  private IMovimientoRepository movimientoRepository;
   
   @Autowired
-  public Seeder(ICuentaRepository cuentaRepository, IMovimientoRepository movimientoRepository) {
+  public Seeder(ICuentaRepository cuentaRepository) {
     this.cuentaRepository = cuentaRepository;
-    this.movimientoRepository = movimientoRepository;
   }
 
   @Override
@@ -37,9 +34,5 @@ public class Seeder implements CommandLineRunner {
       cuentaRepository.save(c);
     }
 
-    List<Movimiento> movimientos =  movimientoRepository.findByIdCuenta(cuenta.get().getId());
-    for (Movimiento m:movimientos) {
-      movimientoRepository.delete(m);
-    }
   }
 }

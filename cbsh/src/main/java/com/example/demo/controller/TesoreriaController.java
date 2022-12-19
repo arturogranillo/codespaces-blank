@@ -1,7 +1,10 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.*;
-import com.example.demo.repository.*;
+import com.example.demo.model.Cuenta;
+import com.example.demo.model.Transferencia;
+import com.example.demo.repository.ICuentaRepository;
+import com.example.demo.service.ITesoreriaService;
+import com.example.demo.model.util.Result;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,79 +19,46 @@ public class TesoreriaController {
 
     private ICuentaRepository cuentaRepository;
 
+    private ITesoreriaService tesoreriaService;
+
     @Autowired
-    public TesoreriaController(ICuentaRepository cuentaRepository) {
+    public TesoreriaController(ICuentaRepository cuentaRepository, ITesoreriaService tesoreriaService) {
         this.cuentaRepository = cuentaRepository;
+        this.tesoreriaService = tesoreriaService;
     }
 
     @GetMapping("/abono/{numero}/{monto}")
     public ResponseEntity abono(@PathVariable String numero, @PathVariable double monto) {
 
-    if(monto >= 0.01){
-    return ResponseEntity.status(HttpStatus.CONFLICT).body("HTTP Status will be CONFLICT (CODE 409)\n");
+    Result<Cuenta> resultadoAbono = tesoreriaService.Abono(numero, monto);
+
+    if(!resultadoAbono.fueExitoso()){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(resultadoAbono.getMensajeError());
     }
 
-    Optional<Cuenta> posibleCuenta = cuentaRepository.findByNumero(numero);
-    if(posibleCuenta.isEmpty()){
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("HTTP Status will be NO_CONTENT (CODE 204)\n");
-    }
-
-    Cuenta cuenta = posibleCuenta.get();
-    cuenta.setSaldo(cuenta.getSaldo() + monto);
-    cuentaRepository.save(cuenta);
-
-    return ResponseEntity.status(HttpStatus.OK).body(cuenta);
+    return ResponseEntity.status(HttpStatus.OK).body(resultadoAbono.getResultado());
   }
 
   @GetMapping("/retiro/{numero}/{monto}")
   public ResponseEntity retiro(@PathVariable String numero, @PathVariable double monto) {
 
-    if(monto >= 0.01){
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("HTTP Status will be CONFLICT (CODE 409)\n");
+    Result<Cuenta> resultadoAbono = tesoreriaService.Retiro(numero, monto);
+
+    if(!resultadoAbono.fueExitoso()){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(resultadoAbono.getMensajeError());
     }
 
-    Optional<Cuenta> posibleCuenta = cuentaRepository.findByNumero(numero);
-    if(posibleCuenta.isEmpty()){
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("HTTP Status will be NO_CONTENT (CODE 204)\n");
-    }
-
-    Cuenta cuenta = posibleCuenta.get();
-    cuenta.setSaldo(cuenta.getSaldo() - monto);
-    cuentaRepository.save(cuenta);
-
-    return ResponseEntity.status(HttpStatus.OK).body(cuenta);
+    return ResponseEntity.status(HttpStatus.OK).body(resultadoAbono.getResultado());
   }
 
   @PutMapping("/transferencia")
   public ResponseEntity transferencia(@RequestBody Transferencia transferencia) {
 
-    if(transferencia.getMonto() >= 0.01){
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("HTTP Status will be CONFLICT (CODE 409)\n");
+    Result<Cuenta> resultadoAbono = tesoreriaService.Transferencia(transferencia);
+    if(!resultadoAbono.fueExitoso()){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(resultadoAbono.getMensajeError());
     }
 
-    Optional<Cuenta> posibleCuentaOrigen = cuentaRepository.findByNumero(transferencia.getCuentaOrigen());
-    if(posibleCuentaOrigen.isEmpty()){
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("HTTP Status will be NO_CONTENT (CODE 204)\n");
-    }
-
-    Optional<Cuenta> posibleCuentaDestino = cuentaRepository.findByNumero(transferencia.getCuentaDestino());
-    if(posibleCuentaDestino.isEmpty()){
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("HTTP Status will be NO_CONTENT (CODE 204)\n");
-    }
-
-    Cuenta cuentaOrigen = posibleCuentaOrigen.get();
-    Cuenta cuentaDestino = posibleCuentaDestino.get();
-
-    if(cuentaOrigen.getSaldo() < transferencia.getMonto()){
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("HTTP Status will be CONFLICT (CODE 409)\n");
-    }
-
-    cuentaOrigen.setSaldo(cuentaOrigen.getSaldo() - transferencia.getMonto());
-    cuentaRepository.save(cuentaOrigen);
-
-    cuentaDestino.setSaldo(cuentaDestino.getSaldo() + transferencia.getMonto());
-    cuentaRepository.save(cuentaDestino);
-    
-    return ResponseEntity.status(HttpStatus.OK).body("HTTP Status will be OK (CODE 200)\n");
+    return ResponseEntity.status(HttpStatus.OK).body(resultadoAbono.getResultado());
   }
 }

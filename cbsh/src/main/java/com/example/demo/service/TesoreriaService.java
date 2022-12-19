@@ -10,41 +10,95 @@ import com.example.demo.service.ITesoreriaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class TesoreriaService implements ITesoreriaService {
+import com.example.demo.model.util.Result;
 
-  private IMovimientoRepository movimientoRepository;
+import org.springframework.stereotype.Service;
+
+@Service
+public class TesoreriaService implements ITesoreriaService {
 
   private ICuentaRepository cuentaRepository;
 
   @Autowired
-  public TesoreriaService(IMovimientoRepository movimientoRepository, ICuentaRepository cuentaRepository) {
-    this.movimientoRepository = movimientoRepository;
+  public TesoreriaService(ICuentaRepository cuentaRepository) {
     this.cuentaRepository = cuentaRepository;
   }
 
   @Override
-  public List<Movimiento> MovimientosPorCuenta(String numero){
-    Optional<Cuenta> cuenta = cuentaRepository.findByNumero(numero);
-    if(cuenta.isEmpty()){
-      return null;
+  public Result<Cuenta> Transferencia(Transferencia transferencia){
+
+    if(transferencia.getMonto() <= 0){
+      return Result.fallo("El monto debe ser mayor a cero.");
     }
-    List<Movimiento> movimientos = movimientoRepository.findByIdCuenta(cuenta.get().getId());
-    return movimientos;
+
+    Optional<Cuenta> posibleCuentaOrigen = cuentaRepository.findByNumero(transferencia.getCuentaOrigen());
+    if(posibleCuentaOrigen.isEmpty()){
+      return Result.fallo("La cuenta origen no existe.");
+    }
+
+    Optional<Cuenta> posibleCuentaDestino = cuentaRepository.findByNumero(transferencia.getCuentaDestino());
+    if(posibleCuentaDestino.isEmpty()){
+      return Result.fallo("La cuenta destino no existe.");
+    }
+
+    Cuenta cuentaOrigen = posibleCuentaOrigen.get();
+    Cuenta cuentaDestino = posibleCuentaDestino.get();
+
+    if(cuentaOrigen.getSaldo() < transferencia.getMonto()){
+      return Result.fallo("La cuenta origen no tiene saldo suficiente");
+    }
+
+    cuentaOrigen.setSaldo(cuentaOrigen.getSaldo() - transferencia.getMonto());
+    cuentaRepository.save(cuentaOrigen);
+
+    cuentaDestino.setSaldo(cuentaDestino.getSaldo() + transferencia.getMonto());
+    cuentaRepository.save(cuentaDestino);
+    
+    return Result.exito(cuentaOrigen);
   }
 
   @Override
-  public boolean Transferencia(Transferencia transferencia){
-    return false;
+  public Result<Cuenta> Abono(String numero, double monto){
+
+    if(monto <= 0){
+      return Result.fallo("El monto debe ser mayor a cero.");
+    }
+
+    Optional<Cuenta> posibleCuenta = cuentaRepository.findByNumero(numero);
+    if(posibleCuenta.isEmpty()){
+      return Result.fallo("La cuenta indicada no existe.");
+    }
+
+    Cuenta cuenta = posibleCuenta.get();
+    cuenta.setSaldo(cuenta.getSaldo() + monto);
+    cuentaRepository.save(cuenta);
+
+    return Result.exito(cuenta);
+
   }
 
   @Override
-  public boolean Abono(String numero, String descripcion, BigDecimal monto){
-    return false;
-  }
+  public Result<Cuenta> Retiro(String numero, double monto){
 
-  @Override
-  public boolean Cargo(String numero, String descripcion, BigDecimal monto){
-    return false;
+    if(monto <= 0){
+      return Result.fallo("El monto debe ser mayor a cero.");
+    }
+
+    Optional<Cuenta> posibleCuenta = cuentaRepository.findByNumero(numero);
+    if(posibleCuenta.isEmpty()){
+      return Result.fallo("La cuenta indicada no existe.");
+    }
+
+    Cuenta cuenta = posibleCuenta.get();
+
+    if(cuenta.getSaldo() < monto){
+      return Result.fallo("La cuenta no tiene saldo suficiente.");
+    }
+
+    cuenta.setSaldo(cuenta.getSaldo() - monto);
+    cuentaRepository.save(cuenta);
+
+    return Result.exito(cuenta);
   }
 
 }
