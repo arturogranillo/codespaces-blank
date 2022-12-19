@@ -27,7 +27,7 @@ public class CuentaController {
 
         Optional<Cuenta> posibleCuenta = cuentaRepository.findByNumero(numero);
         if(posibleCuenta.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("HTTP Status will be NO_CONTENT (CODE 204)\n");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("La cuenta indicada no existe.");
         }
 
         Cuenta cuenta = posibleCuenta.get();
@@ -39,7 +39,7 @@ public class CuentaController {
 
         Optional<Cuenta> posibleCuenta = cuentaRepository.findByNumero(cuenta.getNumero());
         if(!posibleCuenta.isEmpty()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("HTTP Status will be CONFLICT (CODE 409)\n");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("La cuenta indicada ya existe.");
         }
 
         cuentaRepository.save(cuenta);
@@ -52,7 +52,7 @@ public class CuentaController {
 
         Optional<Cuenta> posibleCuenta = cuentaRepository.findByNumero(numero);
         if(posibleCuenta.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("HTTP Status will be NO_CONTENT (CODE 204)\n");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("La cuenta indicada no existe.");
         }
 
         Cuenta cuentaDB = posibleCuenta.get();
@@ -68,10 +68,15 @@ public class CuentaController {
 
         Optional<Cuenta> posibleCuenta = cuentaRepository.findByNumero(numero);
         if(posibleCuenta.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("HTTP Status will be NO_CONTENT (CODE 204)\n");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("La cuenta indicada no existe.");
         }
 
         Cuenta cuenta = posibleCuenta.get();
+
+        if(cuenta.getSaldo() > 0){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("No se puede eliminar una cuenta con salfdo.");
+        }
+
         cuentaRepository.delete(cuenta);
         
         return ResponseEntity.status(HttpStatus.OK).body("HTTP Status will be OK (CODE 200)\n");
