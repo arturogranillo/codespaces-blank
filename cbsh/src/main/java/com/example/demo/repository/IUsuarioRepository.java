@@ -10,4 +10,6 @@ import java.util.Optional;
 
 @RepositoryRestResource()
 public interface IUsuarioRepository extends JpaRepository<Usuario, Long> {
+
+    Optional<Usuario> findByNombre(String nombre);
 }

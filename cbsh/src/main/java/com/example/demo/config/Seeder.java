@@ -11,8 +11,6 @@ import com.example.demo.model.Cuenta;
 
 import com.example.demo.repository.*;
 
-import java.math.BigDecimal;
-
 @Component
 public class Seeder implements CommandLineRunner {
 
@@ -30,7 +28,16 @@ public class Seeder implements CommandLineRunner {
     if (cuenta.isEmpty()) {
       Cuenta c = new Cuenta();
       c.setNumero("123456789");
-      c.setSaldo(0.00);
+      c.setSaldo(100.00);
+      cuentaRepository.save(c);
+    }
+
+    Optional<Cuenta> cuenta2 = cuentaRepository.findByNumero("987654321");
+
+    if (cuenta2.isEmpty()) {
+      Cuenta c = new Cuenta();
+      c.setNumero("987654321");
+      c.setSaldo(100.00);
       cuentaRepository.save(c);
     }
 

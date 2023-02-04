@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.math.BigDecimal;
 
-import com.example.demo.model.util.Result;
+import com.example.demo.util.Result;
 
 import com.example.demo.model.*;
 

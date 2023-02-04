@@ -1,4 +1,4 @@
-package com.example.demo.model.util;
+package com.example.demo.util;
 
 public class Result<T> {
     private final T resultado;

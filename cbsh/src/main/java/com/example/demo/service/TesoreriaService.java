@@ -10,7 +10,7 @@ import com.example.demo.service.ITesoreriaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.example.demo.model.util.Result;
+import com.example.demo.util.Result;
 
 import org.springframework.stereotype.Service;
 
